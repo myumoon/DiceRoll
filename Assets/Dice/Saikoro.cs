@@ -23,6 +23,15 @@ public class Saikoro : MonoBehaviour
     private float m_rotAxisSpeed = 1.0f;
 
     [SerializeField]
+    private float m_rotAxisFluctuationRange = 1.0f;
+
+    [SerializeField]
+    private float m_rotRandFractuationInterval = 1.0f;
+    
+    [SerializeField]
+    private float m_rotAxisSpeedSub = 1.0f;
+
+    [SerializeField]
     private float m_decideInterTime = 1.0f; // 出目が出てから停止までの補間時間
 
     [SerializeField]
@@ -80,13 +89,18 @@ public class Saikoro : MonoBehaviour
             case State.Playing:
                 m_currentTime += Time.deltaTime;
 
+                // 回転のゆらぎ
+                float randRot_t = Mathf.Sin(m_currentTime * Mathf.Deg2Rad * m_rotRandFractuationInterval) + 1.0f * 0.5f; // 0-1の間
+                float randRot   = (EaseInOutQuad(randRot_t) * 2.0f - 1.0f) * m_rotAxisFluctuationRange;
+
                 // メインの回転軸
-                float   rotAxisMainValue = Mathf.Sin(m_currentTime * Mathf.Deg2Rad * m_rotAxisSpeed) + 1.0f * 0.5f; // 0-1の間のsinカーブ
+                float   rotAxisMainValue = Mathf.Sin(m_currentTime * Mathf.Deg2Rad * m_rotAxisSpeed * randRot) + 1.0f * 0.5f; // 0-1の間のsinカーブ
                 Vector3 rotAxisMainVec   = Quaternion.Euler(0.0f, 0.0f, rotAxisMainValue * 360.0f) * Vector3.right;
+                
                 transform.Rotate(rotAxisMainVec, m_rotSpeedMain);
 
                 // サブの回転軸
-                float   rotAxisSubValue = 1.0f - rotAxisMainValue;
+                float   rotAxisSubValue = Mathf.Sin(m_currentTime * Mathf.Deg2Rad * m_rotAxisSpeedSub) + 1.0f * 0.5f; // 0-1の間のsinカーブ
                 Vector3 rotAxisSubVec   = Quaternion.Euler(rotAxisSubValue * 360.0f, 0.0f, 0.0f) * Vector3.up;
                 transform.Rotate(rotAxisSubVec, m_rotSpeedSub);
                 break;
@@ -125,8 +139,19 @@ public class Saikoro : MonoBehaviour
         m_interpolateTime = 0.0f;
     }
 
+    /// <summary>
+    /// https://easings.net/ja#easeOutCubic
+    /// </summary>
     float EaseOutCubic(float x)
     {
         return 1 - Mathf.Pow(1 - x, 3);
+    }
+
+    /// <summary>
+    /// https://easings.net/ja#easeInOutQuad
+    /// </summary>
+    float EaseInOutQuad(float x)
+    {
+        return x< 0.5 ? 2 * x* x : 1 - Mathf.Pow(-2 * x + 2, 2) / 2;
     }
 }
