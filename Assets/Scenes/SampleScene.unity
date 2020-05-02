@@ -621,7 +621,10 @@ MonoBehaviour:
   m_playOnAwake: 1
   m_rotSpeedMain: 8.67
   m_rotSpeedSub: 4.78
-  m_rotAxisSpeed: 2.05
+  m_rotAxisSpeed: 1
+  m_rotAxisFluctuationRange: 1
+  m_rotRandFractuationInterval: 1
+  m_rotAxisSpeedSub: 1
   m_decideInterTime: 1.69
   m_diceRollValue: 0
 --- !u!1 &2145137205
